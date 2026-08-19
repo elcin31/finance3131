@@ -1,72 +1,65 @@
-import { Position } from "@/lib/types";
+import { AssetType, Region, RiskLevel, Sector } from "./company";
 
-// Starter portfolio for demonstration. In the app, positions are editable
-// and this only seeds initial state.
-export const MOCK_PORTFOLIO: Position[] = [
-  {
-    id: "pos-1",
-    ticker: "AAPL",
-    name: "Apple Inc.",
-    quantity: 120,
-    currentPrice: 227.5,
-    averagePurchasePrice: 178.4,
-    sector: "Technology",
-    region: "North America",
-    assetType: "Equity",
-  },
-  {
-    id: "pos-2",
-    ticker: "MSFT",
-    name: "Microsoft Corporation",
-    quantity: 60,
-    currentPrice: 415.2,
-    averagePurchasePrice: 340.1,
-    sector: "Technology",
-    region: "North America",
-    assetType: "Equity",
-  },
-  {
-    id: "pos-3",
-    ticker: "NVDA",
-    name: "NVIDIA Corporation",
-    quantity: 300,
-    currentPrice: 118.4,
-    averagePurchasePrice: 62.3,
-    sector: "Technology",
-    region: "North America",
-    assetType: "Equity",
-  },
-  {
-    id: "pos-4",
-    ticker: "JPM",
-    name: "JPMorgan Chase & Co.",
-    quantity: 80,
-    currentPrice: 205.8,
-    averagePurchasePrice: 165.2,
-    sector: "Financials",
-    region: "North America",
-    assetType: "Equity",
-  },
-  {
-    id: "pos-5",
-    ticker: "JNJ",
-    name: "Johnson & Johnson",
-    quantity: 100,
-    currentPrice: 154.3,
-    averagePurchasePrice: 158.9,
-    sector: "Healthcare",
-    region: "North America",
-    assetType: "Equity",
-  },
-  {
-    id: "pos-6",
-    ticker: "CASH",
-    name: "Cash & Equivalents",
-    quantity: 1,
-    currentPrice: 18500,
-    averagePurchasePrice: 18500,
-    sector: "Cash",
-    region: "North America",
-    assetType: "Cash",
-  },
-];
+export interface Position {
+  id: string;
+  ticker: string;
+  name: string;
+  quantity: number;
+  currentPrice: number;
+  averagePurchasePrice: number;
+  sector: Sector | "Cash";
+  region: Region;
+  assetType: AssetType;
+}
+
+export interface PositionWithMetrics extends Position {
+  marketValue: number;
+  costBasis: number;
+  unrealizedGainLoss: number;
+  unrealizedGainLossPct: number;
+  portfolioWeight: number; // decimal
+  contributionToRisk: number; // decimal, approximate
+  potentialDownside: number; // decimal, estimated loss in bear scenario
+  riskRewardRatio: number | null;
+  concentrationRisk: RiskLevel;
+  exceedsMaxPosition: boolean;
+}
+
+export interface PortfolioRiskSettings {
+  maxPositionSize: number; // decimal, e.g. 0.10 for 10%
+  maxSectorConcentration: number; // decimal
+}
+
+export interface PortfolioRiskMetrics {
+  totalValue: number;
+  expectedReturn: number | null; // decimal, annualized, if historical data available
+  volatility: number | null; // decimal, annualized
+  beta: number | null;
+  sharpeRatio: number | null;
+  maxDrawdown: number | null; // decimal, negative
+  sectorConcentration: Record<string, number>; // sector -> weight
+  geographicConcentration: Record<string, number>; // region -> weight
+  largestPositionWeight: number;
+  top3ConcentrationWeight: number;
+  top5ConcentrationWeight: number;
+  cashAllocation: number;
+}
+
+export type AlertSeverity = "info" | "warning" | "critical";
+
+export interface PortfolioAlert {
+  id: string;
+  severity: AlertSeverity;
+  message: string;
+  relatedTicker?: string;
+}
+
+export interface PricePoint {
+  date: string; // ISO date
+  price: number;
+}
+
+export interface HistoricalPriceSeries {
+  ticker: string;
+  prices: PricePoint[];
+}
